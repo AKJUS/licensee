@@ -1,0 +1,37 @@
+name: Lock inactive closed threads
+
+on:
+  schedule:
+    - cron: '23 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: lock-threads
+
+jobs:
+  lock-threads:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+
+      - name: Lock inactive closed threads
+        uses: dessant/lock-threads@89ae32b08ed1a541efecbab17912962a5e38981c # v6
+        with:
+          issue-inactive-days: '90'
+          issue-comment: ''
+          issue-lock-reason: resolved
+          add-issue-labels: ''
+          remove-issue-labels: ''
+          pr-inactive-days: '30'
+          pr-comment: ''
+          pr-lock-reason: resolved
+          add-pr-labels: ''
+          remove-pr-labels: ''
+          process-only: "issues, prs"
